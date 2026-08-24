@@ -26,9 +26,13 @@ classdef bh_ddr_arena_CLS
         marker_Y_col  = [];
         marker_Z_col  = [];
         marker_radius = 10;
+        path_matrix = [];
         N             = 0;
         TAG_AX        = 'TAG_AX_DDR_ARENA';
         path_linspec  = '--r';
+        marker_color        = [0 0 1];   % outer circle colour (blue)
+        marker_center_color = [1 0 0];   % center dot colour   (red)
+        marker_center_ratio = 0.3;       % dot radius as a fraction of R
     end
     
     properties
@@ -36,14 +40,14 @@ classdef bh_ddr_arena_CLS
     end
 %==========================================================================
 methods
-function OBJ = bh_ddr_arena_CLS(xC, yC, zC)
+function OBJ = bh_ddr_arena_CLS(xC, yC, matrix)
 % Usage:
 %   OBJ = bh_ddr_arena_CLS(xC, yC, zC)
 %   OBJ = bh_ddr_arena_CLS(xC, yC)
 
 close all;
     
-if(2==nargin)
+if(3==nargin)
     zC = zeros(size(xC));
 end
 
@@ -52,6 +56,8 @@ OBJ.marker_Y_col = yC(:);
 OBJ.marker_Z_col = zC(:);
 OBJ.N            = length(xC);
 OBJ.marker_radius = LOC_calc_markersize(OBJ);
+OBJ.marker_radius = 2;
+OBJ.path_matrix = matrix(1:end-1, :);
 
 end % bh_ddr_arena_CLS
 %--------------------------------------------------------------------------
@@ -71,9 +77,10 @@ function plot_arena(OBJ, hax)
         yc = OBJ.marker_Y_col(kk);
         zc = OBJ.marker_Z_col(kk);
         R  = OBJ.marker_radius;
-        hs = LOC_plot_sphere(hax, xc,yc,zc,R);
-        hs.FaceColor = 'blue';
-
+        LOC_plot_circle_marker(hax, xc, yc, zc, R, ...
+                                OBJ.marker_color, ...
+                                OBJ.marker_center_color, ...
+                                OBJ.marker_center_ratio);
     end
     
     xmin = min(OBJ.marker_X_col) - 3*OBJ.marker_radius;
@@ -83,8 +90,8 @@ function plot_arena(OBJ, hax)
     zmin = min(OBJ.marker_Z_col) - 3*OBJ.marker_radius;
     zmax = max(OBJ.marker_Z_col) + 3*OBJ.marker_radius;
     
-    xlim(hax,[-120,120]);
-    ylim(hax,[-120,120]);
+    xlim(hax,[-110,110]);
+    ylim(hax,[-110,110]);
     zlim(hax,[zmin,zmax]);
     
     hL(1) = light('Position',[xmin, ymin, zmax]);   
@@ -93,17 +100,30 @@ function plot_arena(OBJ, hax)
     hL(4) = light('Position',[xmin, ymax, zmax]); 
 
     set(hL,'Style','local')
-        
-    % now draw path
-    % plot3(hax, OBJ.marker_X_col, ...
-    %            OBJ.marker_Y_col, ...
-    %            OBJ.marker_Z_col, ...
-    %            OBJ.path_linspec,  'LineWidth',3);
-           
+      
+    % 
+    % now draw path from path_matrix as a dotted line
+% now draw path (from path_matrix, if provided) as individual points
+    if(~isempty(OBJ.path_matrix))
+        zPath = OBJ.get_path_height() * ones(size(OBJ.path_matrix,1),1);
+ 
+        plot3(hax, OBJ.path_matrix(:,1), ...
+                   OBJ.path_matrix(:,2), ...
+                   zPath, ...
+                   OBJ.path_linspec, 'LineStyle','none', ...
+                   'Marker','.', 'MarkerSize',12, ...
+                   'DisplayName','Optimised Path');
+    end
    % put on some annotations
    grid(hax,'on');
    xlabel('X (m)', 'FontSize',14,'FontWeight','Bold');
    ylabel('Y (m)', 'FontSize',14,'FontWeight','Bold');
+   legend('Waypoint Threshold', 'Waypoints')
+       % now draw path
+   plot3(hax, OBJ.marker_X_col, ...
+               OBJ.marker_Y_col, ...
+               OBJ.marker_Z_col, ...
+               OBJ.path_linspec,  'LineWidth',1.5, 'Color', 'black', 'DisplayName', 'Path');
     
 end % plot_markers
 %--------------------------------------------------------------------------
@@ -128,24 +148,24 @@ end % methods
 
 end % classdef
 %==========================================================================
-function hs = LOC_plot_sphere(hax,xc,yc,zc,R)
-[x,y,z] = sphere(hax,20);
-
-% scale
-x = x*R;
-y = y*R;
-z = z*R;
-% position center
-x = x + xc;
-y = y + yc;
-z = z + zc;
-
-
-hs = surf(hax,x,y,z);
-set(hs,'FaceLighting','gouraud',...
-       'FaceColor',[1 0 0], ...
-       'EdgeColor','none');
-end
+% function hs = LOC_plot_sphere(hax,xc,yc,zc,R)
+% [x,y,z] = sphere(hax,20);
+% 
+% % scale
+% x = x*R;
+% y = y*R;
+% z = z*R;
+% % position center
+% x = x + xc;
+% y = y + yc;
+% z = z + zc;
+% 
+% 
+% hs = surf(hax,x,y,z);
+% set(hs,'FaceLighting','gouraud',...
+%        'FaceColor',[1 0 0], ...
+%        'EdgeColor','none');
+% end
 %==========================================================================
 function R = LOC_calc_markersize(OBJ)
 
@@ -158,3 +178,36 @@ function R = LOC_calc_markersize(OBJ)
     
 end
 %==========================================================================
+function [hOuter, hInner] = LOC_plot_circle_marker(hax, xc, yc, zc, R, ...
+                                                     outerColor, innerColor, innerRatio)
+% Draws a filled circle of radius R centered at (xc,yc,zc), with a
+% smaller, differently-coloured filled dot on top of its center.
+%
+% outerColor / innerColor : RGB triplets (or colour strings)
+% innerRatio              : radius of the center dot as a fraction of R
+ 
+if(nargin < 6), outerColor = [0 0 1]; end   % default blue
+if(nargin < 7), innerColor = [1 1 0]; end   % default yellow
+if(nargin < 8), innerRatio = 0.3;     end
+ 
+theta = linspace(0, 2*pi, 50);
+ 
+% ---- outer circle ----
+xOuter = xc + R*cos(theta);
+yOuter = yc + R*sin(theta);
+zOuter = zc*ones(size(theta));
+ 
+hOuter = patch(hax, xOuter, yOuter, zOuter, 'w', ...
+               'FaceColor','none', ...
+               'EdgeColor',outerColor, 'LineWidth',1.5);
+ 
+% ---- smaller center dot, drawn slightly above so it's always visible ----
+rDot = 0.5;
+xDot = xc + rDot*cos(theta);
+yDot = yc + rDot*sin(theta);
+zDot = (zc + 0.01*max(R,eps))*ones(size(theta));
+ 
+hInner = patch(hax, xDot, yDot, zDot, innerColor, ...
+               'EdgeColor','none');
+ 
+end
