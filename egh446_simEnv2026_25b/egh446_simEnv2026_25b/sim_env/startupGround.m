@@ -16,7 +16,7 @@ cd(homedir);
 %% open current model
 open_system('sl_groundvehicleDynamics'); % ground robot model
 
-cd(homedir); 
+cd(homedir);
 
 
 

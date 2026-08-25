@@ -37,7 +37,7 @@ setup(block);
 function setup(block)
 
 % Register number of ports
-block.NumInputPorts  = 2;
+block.NumInputPorts  = 3;
 block.NumOutputPorts = 0;
 
 % Setup port properties to be inherited or dynamic
@@ -53,6 +53,10 @@ block.InputPort(2).Dimensions        = [10 2];
 block.InputPort(2).DatatypeID        = 0;
 block.InputPort(2).Complexity        = 'Real';
 block.InputPort(2).DirectFeedthrough = true;
+block.InputPort(3).Dimensions        = [384 2];
+block.InputPort(3).DatatypeID        = 0;
+block.InputPort(3).Complexity        = 'Real';
+block.InputPort(3).DirectFeedthrough = true;
 
 % Register parameters
 block.NumDialogPrms     = 4;
@@ -140,6 +144,7 @@ dp_veh_initxytheta = block.DialogPrm(4).Data;
 % Get current inputs
 xytheta = block.InputPort(1).Data;
 wp_mat  = block.InputPort(2).Data;
+path_matrix = block.InputPort(3).Data;
 
 x     = xytheta(1);
 y     = xytheta(2);
@@ -173,7 +178,7 @@ if isempty(bh_UD_T) || ...
     % Create ARENA
     arena_OBJ = bh_ddr_arena_CLS( ...
         wp_mat(:,1), ...
-        wp_mat(:,2));
+        wp_mat(:,2), path_matrix);
 
     % Plot arena
     if isempty(arena_OBJ.get_ax())
