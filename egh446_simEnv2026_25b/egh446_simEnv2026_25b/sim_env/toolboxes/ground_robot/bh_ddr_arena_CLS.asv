@@ -40,14 +40,14 @@ classdef bh_ddr_arena_CLS
     end
 %==========================================================================
 methods
-function OBJ = bh_ddr_arena_CLS(xC, yC, matrix)
+function OBJ = bh_ddr_arena_CLS(xC, yC, zC)
 % Usage:
 %   OBJ = bh_ddr_arena_CLS(xC, yC, zC)
 %   OBJ = bh_ddr_arena_CLS(xC, yC)
 
 close all;
     
-if(3==nargin)
+if(2==nargin)
     zC = zeros(size(xC));
 end
 
@@ -57,7 +57,6 @@ OBJ.marker_Z_col = zC(:);
 OBJ.N            = length(xC);
 OBJ.marker_radius = LOC_calc_markersize(OBJ);
 OBJ.marker_radius = 2;
-OBJ.path_matrix = matrix(1:end-1, :);
 
 end % bh_ddr_arena_CLS
 %--------------------------------------------------------------------------
@@ -101,26 +100,28 @@ function plot_arena(OBJ, hax)
 
     set(hL,'Style','local')
       
-    % now draw path
-    plot3(hax, OBJ.marker_X_col, ...
-               OBJ.marker_Y_col, ...
-               OBJ.marker_Z_col, ...
-               OBJ.path_linspec,  'LineWidth',1.5, 'Color', 'black');
     % 
-    % % now draw path from path_matrix as a dotted line
-    % if(~isempty(OBJ.path_matrix))
-    %     zPath = OBJ.get_path_height() * ones(size(OBJ.path_matrix,1),1);
-    % 
-    %     plot3(hax, OBJ.path_matrix(:,1), ...
-    %                OBJ.path_matrix(:,2), ...
-    %                zPath, ...
-    %                OBJ.path_linspec, 'LineWidth',3, 'LineStyle',':');
-    % end
+    % now draw path from path_matrix as a dotted line
+% now draw path (from path_matrix, if provided) as individual points
+    if(~isempty(OBJ.path_matrix))
+        zPath = OBJ.get_path_height() * ones(size(OBJ.path_matrix,1),1);
+ 
+        plot3(hax, OBJ.path_matrix(:,1), ...
+                   OBJ.path_matrix(:,2), ...
+                   zPath, ...
+       
+                   'DisplayName','Optimised Path');
+    end
    % put on some annotations
    grid(hax,'on');
    xlabel('X (m)', 'FontSize',14,'FontWeight','Bold');
    ylabel('Y (m)', 'FontSize',14,'FontWeight','Bold');
-   legend('Waypoint Threshold', 'Waypoint', 'Waypoint'', 'Waypoint')
+   legend('Waypoint Threshold', 'Waypoints')
+       % now draw path
+   plot3(hax, OBJ.marker_X_col, ...
+               OBJ.marker_Y_col, ...
+               OBJ.marker_Z_col, ...
+               OBJ.path_linspec,  'LineWidth',1.5, 'Color', 'black', 'DisplayName', 'Path');
     
 end % plot_markers
 %--------------------------------------------------------------------------

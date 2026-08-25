@@ -27,23 +27,23 @@ title('Theta'); ylabel('theta (degrees)'); grid on
 sgtitle('Filtered vs Unfiltered Position')
 %%
 % Velocity
-figure
-subplot(3,1,1)
-plot(timestruct, ground_robot_state(:,4), 'Color', c2, 'LineWidth', 1.5); hold on
-plot(timestruct, filtered_ground_robot_state(:,4), 'Color', c1, 'LineWidth', 1.5)
-title('X Velocity'); ylabel('Vx (m/s)'); grid on
-% legend('X Position Filtered', 'X Position Unfiltered')
-
-subplot(3,1,2)
-plot(timestruct, ground_robot_state(:,5), 'Color', c2, 'LineWidth', 1.5); hold on
-plot(timestruct, filtered_ground_robot_state(:,5), 'Color', c1, 'LineWidth', 1.5)
-title('Y Velocity'); ylabel('Vy (m/s)'); grid on
-% legend('X Position Filtered', 'X Position Unfiltered')
-
-subplot(3,1,3)
-plot(timestruct, rad2deg(ground_robot_state(:,6)), 'Color', c2, 'LineWidth', 1.5); hold on
-plot(timestruct, rad2deg(filtered_ground_robot_state(:,6)), 'Color', c1, 'LineWidth', 1.5)
-title('Omega'); ylabel('omega (degrees)'); grid on
-% legend('X Position Filtered', 'X Position Unfiltered')
-
-sgtitle('Filtered vs Unfiltered Velocity')
+% figure
+% subplot(3,1,1)
+% plot(timestruct, ground_robot_state(:,4), 'Color', c2, 'LineWidth', 1.5); hold on
+% plot(timestruct, filtered_ground_robot_state(:,4), 'Color', c1, 'LineWidth', 1.5)
+% title('X Velocity'); ylabel('Vx (m/s)'); grid on
+% % legend('X Position Filtered', 'X Position Unfiltered')
+% 
+% subplot(3,1,2)
+% plot(timestruct, ground_robot_state(:,5), 'Color', c2, 'LineWidth', 1.5); hold on
+% plot(timestruct, filtered_ground_robot_state(:,5), 'Color', c1, 'LineWidth', 1.5)
+% title('Y Velocity'); ylabel('Vy (m/s)'); grid on
+% % legend('X Position Filtered', 'X Position Unfiltered')
+% 
+% subplot(3,1,3)
+% plot(timestruct, rad2deg(ground_robot_state(:,6)), 'Color', c2, 'LineWidth', 1.5); hold on
+% plot(timestruct, rad2deg(filtered_ground_robot_state(:,6)), 'Color', c1, 'LineWidth', 1.5)
+% title('Omega'); ylabel('omega (degrees)'); grid on
+% % legend('X Position Filtered', 'X Position Unfiltered')
+% 
+% sgtitle('Filtered vs Unfiltered Velocity')

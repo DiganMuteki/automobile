@@ -40,14 +40,14 @@ classdef bh_ddr_arena_CLS
     end
 %==========================================================================
 methods
-function OBJ = bh_ddr_arena_CLS(xC, yC, matrix)
+function OBJ = bh_ddr_arena_CLS(xC, yC, zC)
 % Usage:
 %   OBJ = bh_ddr_arena_CLS(xC, yC, zC)
 %   OBJ = bh_ddr_arena_CLS(xC, yC)
 
 close all;
     
-if(3==nargin)
+if(2==nargin)
     zC = zeros(size(xC));
 end
 
@@ -57,7 +57,6 @@ OBJ.marker_Z_col = zC(:);
 OBJ.N            = length(xC);
 OBJ.marker_radius = LOC_calc_markersize(OBJ);
 OBJ.marker_radius = 2;
-OBJ.path_matrix = matrix(1:end-1, :);
 
 end % bh_ddr_arena_CLS
 %--------------------------------------------------------------------------
@@ -103,17 +102,7 @@ function plot_arena(OBJ, hax)
       
     % 
     % now draw path from path_matrix as a dotted line
-% now draw path (from path_matrix, if provided) as individual points
-    if(~isempty(OBJ.path_matrix))
-        zPath = OBJ.get_path_height() * ones(size(OBJ.path_matrix,1),1);
- 
-        plot3(hax, OBJ.path_matrix(:,1), ...
-                   OBJ.path_matrix(:,2), ...
-                   zPath, ...
-                   OBJ.path_linspec, 'LineStyle','none', ...
-                   'Marker','.', 'MarkerSize',12, ...
-                   'DisplayName','Optimised Path');
-    end
+% now draw path
    % put on some annotations
    grid(hax,'on');
    xlabel('X (m)', 'FontSize',14,'FontWeight','Bold');
